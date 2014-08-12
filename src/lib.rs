@@ -43,3 +43,27 @@ impl<'a> UncheckedAnyMutDowncast<'a> for &'a mut Any {
     }
 }
 
+#[cfg(test)]
+mod test {
+    use super::{UncheckedAnyDowncast, UncheckedAnyMutDowncast};
+    use std::any::Any;
+
+    #[test] fn test_simple_downcast() {
+        let a = box 7u as Box<Any>;
+        unsafe { assert_eq!(*a.downcast_ref_unchecked::<uint>(), 7u); }
+    }
+
+    #[test] fn test_simply_mut_downcast() {
+        let mut a = box 7u as Box<Any>;
+        unsafe { assert_eq!(*a.downcast_mut_unchecked::<uint>(), 7u); }
+    }
+
+    #[test] fn test_mut_edit_through_downcast() {
+        let mut a = box 7u as Box<Any>;
+        unsafe {
+            *a.downcast_mut_unchecked::<uint>() = 8u;
+            assert_eq!(*a.downcast_mut_unchecked::<uint>(), 8u);
+        }
+    }
+}
+
