@@ -27,7 +27,7 @@ pub trait UncheckedAnyMutDowncast<'a> {
     unsafe fn downcast_mut_unchecked<T: 'static>(self) -> &'a mut T;
 }
 
-impl<'a> UncheckedAnyDowncast<'a> for &'a Any {
+impl<'a> UncheckedAnyDowncast<'a> for &'a Any + 'static {
     #[inline]
     unsafe fn downcast_ref_unchecked<T: 'static>(self) -> &'a T {
         // Cast to a trait object, get the data pointer, transmute to T.
@@ -35,7 +35,7 @@ impl<'a> UncheckedAnyDowncast<'a> for &'a Any {
     }
 }
 
-impl<'a> UncheckedAnyMutDowncast<'a> for &'a mut Any {
+impl<'a> UncheckedAnyMutDowncast<'a> for &'a mut Any + 'static{
     #[inline]
     unsafe fn downcast_mut_unchecked<T: 'static>(self) -> &'a mut T {
         // Cast to a trait object, get the data pointer, transmute to T.
