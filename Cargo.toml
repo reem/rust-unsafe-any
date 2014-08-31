@@ -4,7 +4,7 @@ name = "unsafe-any"
 version = "0.1.0"
 authors = ["Jonathan Reem <jonathan.reem@gmail.com>"]
 
-[[lib]]
+[lib]
 
 name = "unsafe-any"
 path = "src/lib.rs"
