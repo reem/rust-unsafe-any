@@ -1,4 +1,4 @@
-# Unsafe-Any
+# Unsafe-Any [![Build Status](https://travis-ci.org/reem/rust-unsafe-any.svg?branch=master)](https://travis-ci.org/reem/rust-unsafe-any)
 
 > Convenience traits for unsafe downcasting from trait objects to concrete types.
 
