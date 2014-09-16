@@ -27,6 +27,13 @@ pub trait UncheckedAnyMutDowncast<'a> {
     unsafe fn downcast_mut_unchecked<T: 'static>(self) -> &'a mut T;
 }
 
+/// An extension for unchecked downcasting of trait objects to Box<T>.
+pub trait UncheckedBoxAnyDowncast {
+    /// Return a box of type Box<T>, assuming the trait object contains a type T. If you are not
+    /// _absolutely certain_ of `T` you should _not_ call this!
+    unsafe fn downcast_unchecked<T: 'static>(self) -> Box<T>;
+}
+
 impl<'a> UncheckedAnyDowncast<'a> for &'a Any + 'static {
     #[inline]
     unsafe fn downcast_ref_unchecked<T: 'static>(self) -> &'a T {
@@ -40,6 +47,18 @@ impl<'a> UncheckedAnyMutDowncast<'a> for &'a mut Any + 'static{
     unsafe fn downcast_mut_unchecked<T: 'static>(self) -> &'a mut T {
         // Cast to a trait object, get the data pointer, transmute to T.
         mem::transmute(mem::transmute_copy::<&mut Any, raw::TraitObject>(&self).data)
+    }
+}
+
+impl UncheckedBoxAnyDowncast for Box<Any + 'static> {
+    #[inline]
+    unsafe fn downcast_unchecked<T: 'static>(self) -> Box<T> {
+        let to = *mem::transmute::<&Box<Any>, &raw::TraitObject>(&self);
+
+        // Prevent double-free.
+        mem::forget(self);
+
+        mem::transmute(to.data)
     }
 }
 
