@@ -1,6 +1,5 @@
 #![license = "MIT"]
-#![deny(missing_doc)]
-#![deny(warnings)]
+#![deny(missing_docs, warnings)]
 
 //! Traits for unsafe downcasting from trait objects to & or &mut references of
 //! concrete types. These should only be used if you are absolutely certain of the
