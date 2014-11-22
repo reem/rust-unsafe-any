@@ -33,29 +33,26 @@ pub trait UncheckedBoxAnyDowncast {
     unsafe fn downcast_unchecked<T: 'static>(self) -> Box<T>;
 }
 
-impl<'a> UncheckedAnyDowncast<'a> for &'a Any + 'static {
+impl<'a> UncheckedAnyDowncast<'a> for &'a Any {
     #[inline]
     unsafe fn downcast_ref_unchecked<T: 'static>(self) -> &'a T {
         // Cast to a trait object, get the data pointer, transmute to T.
-        mem::transmute(mem::transmute_copy::<&Any, raw::TraitObject>(&self).data)
+        mem::transmute(mem::transmute::<&Any, raw::TraitObject>(self).data)
     }
 }
 
-impl<'a> UncheckedAnyMutDowncast<'a> for &'a mut Any + 'static{
+impl<'a> UncheckedAnyMutDowncast<'a> for &'a mut Any {
     #[inline]
     unsafe fn downcast_mut_unchecked<T: 'static>(self) -> &'a mut T {
         // Cast to a trait object, get the data pointer, transmute to T.
-        mem::transmute(mem::transmute_copy::<&mut Any, raw::TraitObject>(&self).data)
+        mem::transmute(mem::transmute::<&mut Any, raw::TraitObject>(self).data)
     }
 }
 
-impl UncheckedBoxAnyDowncast for Box<Any + 'static> {
+impl UncheckedBoxAnyDowncast for Box<Any> {
     #[inline]
     unsafe fn downcast_unchecked<T: 'static>(self) -> Box<T> {
-        let to = *mem::transmute::<&Box<Any>, &raw::TraitObject>(&self);
-
-        // Prevent double-free.
-        mem::forget(self);
+        let to = mem::transmute::<Box<Any>, raw::TraitObject>(self);
 
         mem::transmute(to.data)
     }
@@ -63,7 +60,7 @@ impl UncheckedBoxAnyDowncast for Box<Any + 'static> {
 
 #[cfg(test)]
 mod test {
-    use super::{UncheckedAnyDowncast, UncheckedAnyMutDowncast};
+    use super::{UncheckedAnyDowncast, UncheckedAnyMutDowncast, UncheckedBoxAnyDowncast};
     use std::any::Any;
 
     #[test] fn test_simple_downcast() {
@@ -82,6 +79,29 @@ mod test {
             *a.downcast_mut_unchecked::<uint>() = 8u;
             assert_eq!(*a.downcast_mut_unchecked::<uint>(), 8u);
         }
+    }
+
+    #[test] fn test_box_downcast_no_double_free() {
+        use std::sync::atomic::{AtomicUint, Ordering};
+        use std::sync::Arc;
+
+        struct Dropper {
+            x: Arc<AtomicUint>
+        }
+
+        impl Drop for Dropper {
+            fn drop(&mut self) {
+                self.x.fetch_add(1, Ordering::SeqCst);
+            }
+        }
+
+        let x = Arc::new(AtomicUint::new(0));
+        let a = box Dropper { x: x.clone() } as Box<Any>;
+
+        let dropper = unsafe { a.downcast_unchecked::<Dropper>() };
+        drop(dropper);
+
+        assert_eq!(x.load(Ordering::SeqCst), 1);
     }
 }
 
