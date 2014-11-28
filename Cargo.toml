@@ -1,11 +1,9 @@
 [package]
 
 name = "unsafe-any"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Jonathan Reem <jonathan.reem@gmail.com>"]
-
-[lib]
-
-name = "unsafe-any"
-path = "src/lib.rs"
+description = "Traits and implementations for unchecked downcasting."
+repository = "https://github.com/reem/rust-unsafe-any"
+license = "MIT"
 

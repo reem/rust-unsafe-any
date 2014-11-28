@@ -1,4 +1,3 @@
-#![license = "MIT"]
 #![deny(missing_docs, warnings)]
 
 //! Traits for unsafe downcasting from trait objects to & or &mut references of
