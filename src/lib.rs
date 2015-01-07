@@ -46,7 +46,7 @@ impl UnsafeAny {
 }
 
 /// An extension trait for unchecked downcasting of trait objects.
-pub trait UnsafeAnyExt for Sized? {
+pub trait UnsafeAnyExt {
     /// Returns a reference to the contained value, assuming that it is of type `T`.
     ///
     /// ## Warning
