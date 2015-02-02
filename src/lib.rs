@@ -1,3 +1,4 @@
+#![cfg_attr(test, feature(core, box_syntax))]
 #![deny(missing_docs, warnings)]
 
 //! Traits for unsafe downcasting from trait objects to & or &mut references of
@@ -89,39 +90,39 @@ mod test {
     use std::any::Any;
 
     #[test] fn test_simple_downcast_ext() {
-        let a = box 7u as Box<Any>;
-        unsafe { assert_eq!(*a.downcast_ref_unchecked::<uint>(), 7u); }
+        let a = box 7us as Box<Any>;
+        unsafe { assert_eq!(*a.downcast_ref_unchecked::<usize>(), 7us); }
 
-        let mut a = box 7u as Box<Any>;
-        unsafe { assert_eq!(*a.downcast_mut_unchecked::<uint>(), 7u); }
+        let mut a = box 7us as Box<Any>;
+        unsafe { assert_eq!(*a.downcast_mut_unchecked::<usize>(), 7us); }
 
-        let mut a = box 7u as Box<Any>;
+        let mut a = box 7us as Box<Any>;
         unsafe {
-            *a.downcast_mut_unchecked::<uint>() = 8u;
-            assert_eq!(*a.downcast_mut_unchecked::<uint>(), 8u);
+            *a.downcast_mut_unchecked::<usize>() = 8us;
+            assert_eq!(*a.downcast_mut_unchecked::<usize>(), 8us);
         }
     }
 
     #[test] fn test_simple_downcast_inherent() {
-        let a = box 7u as Box<UnsafeAny>;
-        unsafe { assert_eq!(*a.downcast_ref_unchecked::<uint>(), 7u); }
+        let a = box 7us as Box<UnsafeAny>;
+        unsafe { assert_eq!(*a.downcast_ref_unchecked::<usize>(), 7us); }
 
-        let mut a = box 7u as Box<UnsafeAny>;
-        unsafe { assert_eq!(*a.downcast_mut_unchecked::<uint>(), 7u); }
+        let mut a = box 7us as Box<UnsafeAny>;
+        unsafe { assert_eq!(*a.downcast_mut_unchecked::<usize>(), 7us); }
 
-        let mut a = box 7u as Box<UnsafeAny>;
+        let mut a = box 7us as Box<UnsafeAny>;
         unsafe {
-            *a.downcast_mut_unchecked::<uint>() = 8u;
-            assert_eq!(*a.downcast_mut_unchecked::<uint>(), 8u);
+            *a.downcast_mut_unchecked::<usize>() = 8us;
+            assert_eq!(*a.downcast_mut_unchecked::<usize>(), 8us);
         }
     }
 
     #[test] fn test_box_downcast_no_double_free() {
-        use std::sync::atomic::{AtomicUint, Ordering};
+        use std::sync::atomic::{AtomicUsize, Ordering};
         use std::sync::Arc;
 
         struct Dropper {
-            x: Arc<AtomicUint>
+            x: Arc<AtomicUsize>
         }
 
         impl Drop for Dropper {
@@ -130,7 +131,7 @@ mod test {
             }
         }
 
-        let x = Arc::new(AtomicUint::new(0));
+        let x = Arc::new(AtomicUsize::new(0));
         let a = box Dropper { x: x.clone() } as Box<UnsafeAny>;
 
         let dropper = unsafe { a.downcast_unchecked::<Dropper>() };
@@ -138,7 +139,7 @@ mod test {
 
         assert_eq!(x.load(Ordering::SeqCst), 1);
 
-        let x = Arc::new(AtomicUint::new(0));
+        let x = Arc::new(AtomicUsize::new(0));
         let a = box Dropper { x: x.clone() } as Box<Any>;
 
         let dropper = unsafe { a.downcast_unchecked::<Dropper>() };
