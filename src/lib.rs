@@ -1,4 +1,4 @@
-#![cfg_attr(test, feature(core, box_syntax))]
+#![feature(core)]
 #![deny(missing_docs, warnings)]
 
 //! Traits for unsafe downcasting from trait objects to & or &mut references of
@@ -90,30 +90,30 @@ mod test {
     use std::any::Any;
 
     #[test] fn test_simple_downcast_ext() {
-        let a = box 7us as Box<Any>;
-        unsafe { assert_eq!(*a.downcast_ref_unchecked::<usize>(), 7us); }
+        let a = Box::new(7) as Box<Any>;
+        unsafe { assert_eq!(*a.downcast_ref_unchecked::<usize>(), 7); }
 
-        let mut a = box 7us as Box<Any>;
-        unsafe { assert_eq!(*a.downcast_mut_unchecked::<usize>(), 7us); }
+        let mut a = Box::new(7) as Box<Any>;
+        unsafe { assert_eq!(*a.downcast_mut_unchecked::<usize>(), 7); }
 
-        let mut a = box 7us as Box<Any>;
+        let mut a = Box::new(7) as Box<Any>;
         unsafe {
-            *a.downcast_mut_unchecked::<usize>() = 8us;
-            assert_eq!(*a.downcast_mut_unchecked::<usize>(), 8us);
+            *a.downcast_mut_unchecked::<usize>() = 8;
+            assert_eq!(*a.downcast_mut_unchecked::<usize>(), 8);
         }
     }
 
     #[test] fn test_simple_downcast_inherent() {
-        let a = box 7us as Box<UnsafeAny>;
-        unsafe { assert_eq!(*a.downcast_ref_unchecked::<usize>(), 7us); }
+        let a = Box::new(7) as Box<UnsafeAny>;
+        unsafe { assert_eq!(*a.downcast_ref_unchecked::<usize>(), 7); }
 
-        let mut a = box 7us as Box<UnsafeAny>;
-        unsafe { assert_eq!(*a.downcast_mut_unchecked::<usize>(), 7us); }
+        let mut a = Box::new(7) as Box<UnsafeAny>;
+        unsafe { assert_eq!(*a.downcast_mut_unchecked::<usize>(), 7); }
 
-        let mut a = box 7us as Box<UnsafeAny>;
+        let mut a = Box::new(7) as Box<UnsafeAny>;
         unsafe {
-            *a.downcast_mut_unchecked::<usize>() = 8us;
-            assert_eq!(*a.downcast_mut_unchecked::<usize>(), 8us);
+            *a.downcast_mut_unchecked::<usize>() = 8;
+            assert_eq!(*a.downcast_mut_unchecked::<usize>(), 8);
         }
     }
 
@@ -132,7 +132,7 @@ mod test {
         }
 
         let x = Arc::new(AtomicUsize::new(0));
-        let a = box Dropper { x: x.clone() } as Box<UnsafeAny>;
+        let a = Box::new(Dropper { x: x.clone() }) as Box<UnsafeAny>;
 
         let dropper = unsafe { a.downcast_unchecked::<Dropper>() };
         drop(dropper);
@@ -140,7 +140,7 @@ mod test {
         assert_eq!(x.load(Ordering::SeqCst), 1);
 
         let x = Arc::new(AtomicUsize::new(0));
-        let a = box Dropper { x: x.clone() } as Box<Any>;
+        let a = Box::new(Dropper { x: x.clone() }) as Box<Any>;
 
         let dropper = unsafe { a.downcast_unchecked::<Dropper>() };
         drop(dropper);
