@@ -7,3 +7,6 @@ description = "Traits and implementations for unchecked downcasting."
 repository = "https://github.com/reem/rust-unsafe-any"
 license = "MIT"
 
+[dependencies]
+traitobject = "*"
+

@@ -1,4 +1,3 @@
-#![feature(core)]
 #![deny(missing_docs, warnings)]
 
 //! Traits for unsafe downcasting from trait objects to & or &mut references of
@@ -8,9 +7,10 @@
 //! Originally inspired by https://github.com/chris-morgan/anymap
 //! and the implementation of `std::any::Any`.
 
+extern crate traitobject;
+
 use std::any::Any;
 use std::mem;
-use std::raw;
 
 /// A trait providing unchecked downcasting to its contents when stored
 /// in a trait object.
@@ -24,7 +24,7 @@ impl UnsafeAny {
     ///
     /// If you are not _absolutely certain_ of `T` you should _not_ call this!
     pub unsafe fn downcast_ref_unchecked<T: 'static>(&self) -> &T {
-        mem::transmute(mem::transmute::<&UnsafeAny, raw::TraitObject>(self).data)
+        mem::transmute(traitobject::data(self))
     }
 
     /// Returns a mutable reference to the contained value, assuming that it is of type `T`.
@@ -33,7 +33,7 @@ impl UnsafeAny {
     ///
     /// If you are not _absolutely certain_ of `T` you should _not_ call this!
     pub unsafe fn downcast_mut_unchecked<T: 'static>(&mut self) -> &mut T {
-        mem::transmute(mem::transmute::<&mut UnsafeAny, raw::TraitObject>(self).data)
+        mem::transmute(traitobject::data_mut(self))
     }
 
     /// Returns a the contained value, assuming that it is of type `T`.
@@ -42,7 +42,8 @@ impl UnsafeAny {
     ///
     /// If you are not _absolutely certain_ of `T` you should _not_ call this!
     pub unsafe fn downcast_unchecked<T: 'static>(self: Box<UnsafeAny>) -> Box<T> {
-        mem::transmute(mem::transmute::<Box<UnsafeAny>, raw::TraitObject>(self).data)
+        let raw: *mut UnsafeAny = mem::transmute(self);
+        mem::transmute(traitobject::data_mut(raw))
     }
 }
 
@@ -72,15 +73,16 @@ pub trait UnsafeAnyExt {
 
 impl UnsafeAnyExt for Any {
     unsafe fn downcast_ref_unchecked<T: 'static>(&self) -> &T {
-        mem::transmute(mem::transmute::<&Any, raw::TraitObject>(self).data)
+        mem::transmute(traitobject::data(self))
     }
 
     unsafe fn downcast_mut_unchecked<T: 'static>(&mut self) -> &mut T {
-        mem::transmute(mem::transmute::<&mut Any, raw::TraitObject>(self).data)
+        mem::transmute(traitobject::data_mut(self))
     }
 
     unsafe fn downcast_unchecked<T: 'static>(self: Box<Any>) -> Box<T> {
-        mem::transmute(mem::transmute::<Box<Any>, raw::TraitObject>(self).data)
+        let raw: *mut UnsafeAny = mem::transmute(self);
+        mem::transmute(traitobject::data_mut(raw))
     }
 }
 
