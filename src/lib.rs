@@ -71,20 +71,33 @@ pub trait UnsafeAnyExt {
     unsafe fn downcast_unchecked<T: 'static>(self: Box<Self>) -> Box<T>;
 }
 
-impl UnsafeAnyExt for Any {
-    unsafe fn downcast_ref_unchecked<T: 'static>(&self) -> &T {
-        mem::transmute(traitobject::data(self))
-    }
+macro_rules! implement_unsafe_any_ext {
+    ($t:ty) => {
+        impl UnsafeAnyExt for $t {
+            unsafe fn downcast_ref_unchecked<T: 'static>(&self) -> &T {
+                mem::transmute(traitobject::data(self))
+            }
 
-    unsafe fn downcast_mut_unchecked<T: 'static>(&mut self) -> &mut T {
-        mem::transmute(traitobject::data_mut(self))
-    }
+            unsafe fn downcast_mut_unchecked<T: 'static>(&mut self) -> &mut T {
+                mem::transmute(traitobject::data_mut(self))
+            }
 
-    unsafe fn downcast_unchecked<T: 'static>(self: Box<Any>) -> Box<T> {
-        let raw: *mut UnsafeAny = mem::transmute(self);
-        mem::transmute(traitobject::data_mut(raw))
+            unsafe fn downcast_unchecked<T: 'static>(self: Box<$t>) -> Box<T> {
+                let raw: *mut UnsafeAny = mem::transmute(self);
+                mem::transmute(traitobject::data_mut(raw))
+            }
+        }
     }
 }
+
+implement_unsafe_any_ext!(Any);
+implement_unsafe_any_ext!(UnsafeAny);
+implement_unsafe_any_ext!((Any + Send));
+implement_unsafe_any_ext!((Any + Sync));
+implement_unsafe_any_ext!((Any + Send + Sync));
+implement_unsafe_any_ext!((UnsafeAny + Send));
+implement_unsafe_any_ext!((UnsafeAny + Sync));
+implement_unsafe_any_ext!((UnsafeAny + Send + Sync));
 
 #[cfg(test)]
 mod test {
