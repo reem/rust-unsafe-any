@@ -23,7 +23,7 @@ impl UnsafeAny {
     /// ## Warning
     ///
     /// If you are not _absolutely certain_ of `T` you should _not_ call this!
-    pub unsafe fn downcast_ref_unchecked<T: 'static>(&self) -> &T {
+    pub unsafe fn downcast_ref_unchecked<T: Any>(&self) -> &T {
         mem::transmute(traitobject::data(self))
     }
 
@@ -32,7 +32,7 @@ impl UnsafeAny {
     /// ## Warning
     ///
     /// If you are not _absolutely certain_ of `T` you should _not_ call this!
-    pub unsafe fn downcast_mut_unchecked<T: 'static>(&mut self) -> &mut T {
+    pub unsafe fn downcast_mut_unchecked<T: Any>(&mut self) -> &mut T {
         mem::transmute(traitobject::data_mut(self))
     }
 
@@ -41,63 +41,51 @@ impl UnsafeAny {
     /// ## Warning
     ///
     /// If you are not _absolutely certain_ of `T` you should _not_ call this!
-    pub unsafe fn downcast_unchecked<T: 'static>(self: Box<UnsafeAny>) -> Box<T> {
+    pub unsafe fn downcast_unchecked<T: Any>(self: Box<UnsafeAny>) -> Box<T> {
         let raw: *mut UnsafeAny = mem::transmute(self);
         mem::transmute(traitobject::data_mut(raw))
     }
 }
 
 /// An extension trait for unchecked downcasting of trait objects.
-pub trait UnsafeAnyExt {
+pub unsafe trait UnsafeAnyExt {
     /// Returns a reference to the contained value, assuming that it is of type `T`.
     ///
     /// ## Warning
     ///
     /// If you are not _absolutely certain_ of `T` you should _not_ call this!
-    unsafe fn downcast_ref_unchecked<T: 'static>(&self) -> &T;
+    unsafe fn downcast_ref_unchecked<T: Any>(&self) -> &T {
+        mem::transmute(traitobject::data(self))
+    }
 
     /// Returns a mutable reference to the contained value, assuming that it is of type `T`.
     ///
     /// ## Warning
     ///
     /// If you are not _absolutely certain_ of `T` you should _not_ call this!
-    unsafe fn downcast_mut_unchecked<T: 'static>(&mut self) -> &mut T;
+    unsafe fn downcast_mut_unchecked<T: Any>(&mut self) -> &mut T {
+        mem::transmute(traitobject::data_mut(self))
+    }
 
     /// Returns a the contained value, assuming that it is of type `T`.
     ///
     /// ## Warning
     ///
     /// If you are not _absolutely certain_ of `T` you should _not_ call this!
-    unsafe fn downcast_unchecked<T: 'static>(self: Box<Self>) -> Box<T>;
-}
-
-macro_rules! implement_unsafe_any_ext {
-    ($t:ty) => {
-        impl UnsafeAnyExt for $t {
-            unsafe fn downcast_ref_unchecked<T: 'static>(&self) -> &T {
-                mem::transmute(traitobject::data(self))
-            }
-
-            unsafe fn downcast_mut_unchecked<T: 'static>(&mut self) -> &mut T {
-                mem::transmute(traitobject::data_mut(self))
-            }
-
-            unsafe fn downcast_unchecked<T: 'static>(self: Box<$t>) -> Box<T> {
-                let raw: *mut UnsafeAny = mem::transmute(self);
-                mem::transmute(traitobject::data_mut(raw))
-            }
-        }
+    unsafe fn downcast_unchecked<T: Any>(mut self: Box<Self>) -> Box<T> {
+        let raw: &mut *mut UnsafeAny = mem::transmute(&mut self); // Also forgets self.
+        mem::transmute(traitobject::data_mut(*raw))
     }
 }
 
-implement_unsafe_any_ext!(Any);
-implement_unsafe_any_ext!(UnsafeAny);
-implement_unsafe_any_ext!((Any + Send));
-implement_unsafe_any_ext!((Any + Sync));
-implement_unsafe_any_ext!((Any + Send + Sync));
-implement_unsafe_any_ext!((UnsafeAny + Send));
-implement_unsafe_any_ext!((UnsafeAny + Sync));
-implement_unsafe_any_ext!((UnsafeAny + Send + Sync));
+unsafe impl UnsafeAnyExt for Any { }
+unsafe impl UnsafeAnyExt for UnsafeAny { }
+unsafe impl UnsafeAnyExt for Any + Send { }
+unsafe impl UnsafeAnyExt for Any + Sync { }
+unsafe impl UnsafeAnyExt for Any + Send + Sync { }
+unsafe impl UnsafeAnyExt for UnsafeAny + Send { }
+unsafe impl UnsafeAnyExt for UnsafeAny + Sync { }
+unsafe impl UnsafeAnyExt for UnsafeAny + Send + Sync { }
 
 #[cfg(test)]
 mod test {
