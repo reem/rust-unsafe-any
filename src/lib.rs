@@ -72,9 +72,9 @@ pub unsafe trait UnsafeAnyExt {
     /// ## Warning
     ///
     /// If you are not _absolutely certain_ of `T` you should _not_ call this!
-    unsafe fn downcast_unchecked<T: Any>(mut self: Box<Self>) -> Box<T> {
-        let raw: &mut *mut UnsafeAny = mem::transmute(&mut self); // Also forgets self.
-        mem::transmute(traitobject::data_mut(*raw))
+    unsafe fn downcast_unchecked<T: Any>(self: Box<Self>) -> Box<T> {
+        let raw: *mut Self = mem::transmute(self);
+        mem::transmute(traitobject::data_mut(raw))
     }
 }
 
@@ -142,6 +142,7 @@ mod test {
 
         assert_eq!(x.load(Ordering::SeqCst), 1);
 
+        // Test the UnsafeAnyExt implementation.
         let x = Arc::new(AtomicUsize::new(0));
         let a = Box::new(Dropper { x: x.clone() }) as Box<Any>;
 
