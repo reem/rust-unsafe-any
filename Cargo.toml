@@ -1,7 +1,7 @@
 [package]
 
 name = "unsafe-any"
-version = "0.3.0"
+version = "0.4.1"
 authors = ["Jonathan Reem <jonathan.reem@gmail.com>"]
 description = "Traits and implementations for unchecked downcasting."
 repository = "https://github.com/reem/rust-unsafe-any"
