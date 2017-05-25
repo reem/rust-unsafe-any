@@ -93,13 +93,13 @@ mod test {
     use std::any::Any;
 
     #[test] fn test_simple_downcast_ext() {
-        let a = Box::new(7) as Box<Any>;
+        let a = Box::new(7usize) as Box<Any>;
         unsafe { assert_eq!(*a.downcast_ref_unchecked::<usize>(), 7); }
 
-        let mut a = Box::new(7) as Box<Any>;
+        let mut a = Box::new(7usize) as Box<Any>;
         unsafe { assert_eq!(*a.downcast_mut_unchecked::<usize>(), 7); }
 
-        let mut a = Box::new(7) as Box<Any>;
+        let mut a = Box::new(7usize) as Box<Any>;
         unsafe {
             *a.downcast_mut_unchecked::<usize>() = 8;
             assert_eq!(*a.downcast_mut_unchecked::<usize>(), 8);
@@ -107,13 +107,13 @@ mod test {
     }
 
     #[test] fn test_simple_downcast_inherent() {
-        let a = Box::new(7) as Box<UnsafeAny>;
+        let a = Box::new(7usize) as Box<UnsafeAny>;
         unsafe { assert_eq!(*a.downcast_ref_unchecked::<usize>(), 7); }
 
-        let mut a = Box::new(7) as Box<UnsafeAny>;
+        let mut a = Box::new(7usize) as Box<UnsafeAny>;
         unsafe { assert_eq!(*a.downcast_mut_unchecked::<usize>(), 7); }
 
-        let mut a = Box::new(7) as Box<UnsafeAny>;
+        let mut a = Box::new(7usize) as Box<UnsafeAny>;
         unsafe {
             *a.downcast_mut_unchecked::<usize>() = 8;
             assert_eq!(*a.downcast_mut_unchecked::<usize>(), 8);
